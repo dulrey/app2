@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import { useAppContext } from "../libs/contextLib";
+import { useHistory } from "react-router-dom";
 import { Auth } from "aws-amplify";
 import "./Login.css";
+
 
 function Login() {
   const { userHasAuthenticated } = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const history = useHistory();
 
   function validateForm() {
     return username.length > 0 && password.length > 0;
@@ -19,14 +22,9 @@ function Login() {
     event.preventDefault();
   
     try {
-      const user = await Auth.signIn(username, password);
+      await Auth.signIn(username, password);
       userHasAuthenticated(true);
-      Auth.currentSession().then(res=>{
-        let refreshToken = res.getRefreshToken()
-        console.log(`myIdToken: ${res.getIdToken().getJwtToken()}`)
-        let jwt = res.getAccessToken().getJwtToken()
-        console.log(`myJwt: ${jwt}`)
-      })
+      history.push("/");
     } catch (e) {
       alert(e.message);
     }
